@@ -48,10 +48,8 @@ void wava::WavAudio::load(const char *path)
     }
 
     i = getFileCursorMark(fs, "RIFF") - 1;
-    fs.seekg(i + 4, std::ios::beg);
-    fs.read((char *)&chunkSize, 4);
-    fs.seekg(i + 8, std::ios::beg);
-    fs.read((char *)&format, 4);
+    readFileWithOffset(fs, chunkSize, i + 4);
+    readFileWithOffset(fs, format, i + 8, 4);
 
     if (std::string(format).compare("WAVE") != 0)
     {
@@ -60,28 +58,18 @@ void wava::WavAudio::load(const char *path)
     }
 
     i = getFileCursorMark(fs, "fmt") - 1;
-    fs.seekg(i + 4, std::ios::beg);
-    fs.read((char *)&subChunk1Size, 4);
-    fs.seekg(i + 8, std::ios::beg);
-    fs.read((char *)&audioFormat, 2);
-    fs.seekg(i + 10, std::ios::beg);
-    fs.read((char *)&numChannels, 2);
-    fs.seekg(i + 12, std::ios::beg);
-    fs.read((char *)&sampleRate, 4);
-    fs.seekg(i + 16, std::ios::beg);
-    fs.read((char *)&byteRate, 4);
-    fs.seekg(i + 20, std::ios::beg);
-    fs.read((char *)&blockAlign, 2);
-    fs.seekg(i + 22, std::ios::beg);
-    fs.read((char *)&bitsPerSample, 2);
-    fs.seekg(i + 24, std::ios::beg);
+    readFileWithOffset(fs, subChunk1Size, i + 4);
+    readFileWithOffset(fs, audioFormat, i + 8);
+    readFileWithOffset(fs, numChannels, i + 10);
+    readFileWithOffset(fs, sampleRate, i + 12);
+    readFileWithOffset(fs, byteRate, i + 16);
+    readFileWithOffset(fs, blockAlign, i + 20);
+    readFileWithOffset(fs, bitsPerSample, i + 22);
 
     i = getFileCursorMark(fs, "data") - 1;
-    fs.seekg(i + 4, std::ios::beg);
-    fs.read((char *)&subChunk2Size, 4);
-    fs.seekg(i + 8, std::ios::beg);
+    readFileWithOffset(fs, subChunk2Size, i + 4);
     data = new unsigned char[subChunk2Size];
-    fs.read((char *)data, subChunk2Size);
+    readFileWithOffset(fs, *data, i + 8, subChunk2Size);
 
     fs.close();
     loadPcmToOpenAL();
@@ -191,4 +179,30 @@ void wava::WavAudio::loadPcmToOpenAL()
     }
     else
         abort();
+}
+
+template <typename T>
+void wava::WavAudio::readFileWithOffset(std::ifstream &fs, T &t, int offset)
+{
+    fs.seekg(offset, std::ios::beg);
+    fs.read((char *)&t, sizeof(T));
+}
+
+template <typename T>
+void wava::WavAudio::readFileWithOffset(std::ifstream &fs, T &t, int offset, int size)
+{
+    fs.seekg(offset, std::ios::beg);
+    fs.read((char *)&t, size);
+}
+
+template <typename T>
+void wava::WavAudio::writeFileWithOffset(std::ofstream &fs, T &t, int offset)
+{
+    fs.write((char *)&t, sizeof(T));
+}
+
+template <typename T>
+void wava::WavAudio::writeFileWithOffset(std::ofstream &fs, T &t, int offset, int size)
+{
+    fs.write((char *)&t, size);
 }

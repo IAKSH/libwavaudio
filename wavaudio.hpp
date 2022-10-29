@@ -39,13 +39,25 @@ namespace wava
         void loadPcmToOpenAL();
         void clear();
 
+        template <typename T>
+        void readFileWithOffset(std::ifstream &fs, T &t, int offset);
+
+        template <typename T>
+        void readFileWithOffset(std::ifstream &fs, T &t, int offset, int size);
+
+        template <typename T>
+        void writeFileWithOffset(std::ofstream &fs, T &t, int offset);
+
+        template <typename T>
+        void writeFileWithOffset(std::ofstream &fs, T &t, int offset, int size);
+
     public:
         WavAudio();
         WavAudio(const char *path);
         ~WavAudio();
 
         void load(const char *path);
-        void loadPCMFromMemory(unsigned char *data,int size);
+        void loadPCMFromMemory(unsigned char *data, int size);
         void save(const char *path);
         unsigned char *getPcmData();
         uint32_t getBuffer();
