@@ -69,8 +69,11 @@ int main() noexcept
 
     AudioPlayer ap;
     wava::WavAudio wa("../test/sounds/heart.wav");
+    wava::WavAudio toSave;
+    toSave.loadPCMFromMemory(wa.getPcmData(),wa.getPcmSize());
+    toSave.save("../out.wav");
 
-    ap.play(wa, false, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+    ap.play(toSave, true, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
     std::cout << "finished!\n";
     while (true)
         std::this_thread::sleep_for(std::chrono::seconds(1));

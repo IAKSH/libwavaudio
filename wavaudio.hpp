@@ -15,6 +15,8 @@ namespace wava
     {
     private:
         uint32_t buffer;
+        unsigned char *pcmData;
+        uint32_t pcmDataSize;
         bool loop = true;
         bool loaded = false;
 
@@ -36,6 +38,7 @@ namespace wava
         unsigned char *data;
 
         int getFileCursorMark(std::ifstream &fs, std::string mark);
+        void clear();
 
     public:
         WavAudio();
@@ -43,6 +46,10 @@ namespace wava
         ~WavAudio();
 
         void load(const char *path);
+        void loadPCMFromMemory(unsigned char *data,int size);
+        void save(const char *path);
+        unsigned char *getPcmData();
         uint32_t getBuffer();
+        uint32_t getPcmSize();
     };
 }
