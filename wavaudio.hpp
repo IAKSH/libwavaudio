@@ -15,8 +15,6 @@ namespace wava
     {
     private:
         uint32_t buffer;
-        unsigned char *pcmData;
-        uint32_t pcmDataSize;
         bool loop = true;
         bool loaded = false;
 
@@ -38,6 +36,7 @@ namespace wava
         unsigned char *data;
 
         int getFileCursorMark(std::ifstream &fs, std::string mark);
+        void loadPcmToOpenAL();
         void clear();
 
     public:
