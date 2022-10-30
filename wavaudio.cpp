@@ -16,6 +16,7 @@ int wava::WavAudio::getFileCursorMark(std::ifstream &fs, std::string mark)
         if (mark.compare(buf) == 0)
             return i;
     }
+
     std::cerr << "[libwavaudio] ERROR: failed to locate mark (" << mark << ") in moveFileCursorToMark()\n";
     abort();
 }
@@ -96,18 +97,7 @@ void wava::WavAudio::loadPCMFromMemory(unsigned char *data, int size)
     for (int i = 0; i < 4; i++)
         format[i] = WAVE_FORMAT[i];
 
-    this->data = data;
-    subChunk2Size = size + 8;
-    chunkSize = size + 36;
-    std::cout << chunkSize << '\n'; // test
-    subChunk1Size = 16;
-    audioFormat = 1;
-    numChannels = 1;
-    sampleRate = 44100;
-    byteRate = 88200;
-    blockAlign = 2;
-    bitsPerSample = 16;
-
+    setDefeautWavMeta(data, size);
     loadPcmToOpenAL();
     loaded = true;
 }
@@ -120,23 +110,21 @@ void wava::WavAudio::save(const char *path)
         abort();
     }
 
-    int temp = 66;
-
     std::ofstream fs(path, std::ios::out | std::ios::binary);
-    fs.write("RIFF", 4);
-    fs.write((char *)&chunkSize, 4);
-    fs.write(format, 4);
-    fs.write("fmt ", 4);
-    fs.write((char *)&subChunk1Size, 4);
-    fs.write((char *)&audioFormat, 2);
-    fs.write((char *)&numChannels, 2);
-    fs.write((char *)&sampleRate, 4);
-    fs.write((char *)&byteRate, 4);
-    fs.write((char *)&blockAlign, 2);
-    fs.write((char *)&bitsPerSample, 2);
-    fs.write("data", 4);
-    fs.write((char *)&subChunk2Size, 4);
-    fs.write((char *)data, subChunk2Size);
+    writeFile(fs, "RIFF", 4);
+    writeFile(fs, chunkSize);
+    writeFile(fs, *format, 4);
+    writeFile(fs, "fmt ", 4);
+    writeFile(fs, subChunk1Size);
+    writeFile(fs, audioFormat);
+    writeFile(fs, numChannels);
+    writeFile(fs, sampleRate);
+    writeFile(fs, byteRate);
+    writeFile(fs, blockAlign);
+    writeFile(fs, bitsPerSample);
+    writeFile(fs, "data", 4);
+    writeFile(fs, subChunk2Size);
+    writeFile(fs, *data, subChunk2Size);
     fs.close();
 }
 
@@ -205,4 +193,42 @@ template <typename T>
 void wava::WavAudio::writeFileWithOffset(std::ofstream &fs, T &t, int offset, int size)
 {
     fs.write((char *)&t, size);
+}
+
+template <typename T>
+void wava::WavAudio::writeFile(std::ofstream &fs, T &t)
+{
+    fs.write((char *)&t, sizeof(T));
+}
+
+template <typename T>
+void wava::WavAudio::writeFile(std::ofstream &fs, T &t, int size)
+{
+    fs.write((char *)&t, size);
+}
+
+template <typename T>
+void wava::WavAudio::readFile(std::ifstream &fs, T &t)
+{
+    fs.read((char *)&t, sizeof(T));
+}
+
+template <typename T>
+void wava::WavAudio::readFile(std::ifstream &fs, T &t, int size)
+{
+    fs.read((char *)&t, size);
+}
+
+void wava::WavAudio::setDefeautWavMeta(unsigned char *newData, int size)
+{
+    data = newData;
+    subChunk2Size = size + 8;
+    chunkSize = size + 36;
+    subChunk1Size = 16;
+    audioFormat = 1;
+    numChannels = 1;
+    sampleRate = 44100;
+    byteRate = 88200;
+    blockAlign = 2;
+    bitsPerSample = 16;
 }

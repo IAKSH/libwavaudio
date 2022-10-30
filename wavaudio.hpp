@@ -36,14 +36,27 @@ namespace wava
         unsigned char *data;
 
         int getFileCursorMark(std::ifstream &fs, std::string mark);
+        void setDefeautWavMeta(unsigned char *newData, int size);
         void loadPcmToOpenAL();
         void clear();
+
+        template <typename T>
+        void readFile(std::ifstream &fs, T &t);
+
+        template <typename T>
+        void readFile(std::ifstream &fs, T &t, int size);
 
         template <typename T>
         void readFileWithOffset(std::ifstream &fs, T &t, int offset);
 
         template <typename T>
         void readFileWithOffset(std::ifstream &fs, T &t, int offset, int size);
+
+        template <typename T>
+        void writeFile(std::ofstream &fs, T &t);
+
+        template <typename T>
+        void writeFile(std::ofstream &fs, T &t, int size);
 
         template <typename T>
         void writeFileWithOffset(std::ofstream &fs, T &t, int offset);
